@@ -6,8 +6,8 @@ class LinkedList
 		class llnode
 		{
 			public: 
-			llnode(){}
-			int data; 
+			llnode(){data = new int[3];}
+			int[3] data; 
 			llnode* next; 
 			llnode* previous;
 		};
