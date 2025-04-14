@@ -1,8 +1,14 @@
-#include <iostream>
-#include <string>
 #include "algs.h"
 
-void useOPT(std::string filename)
+void useOPT(std::string filename, Algorithms* algs)
 {   
-    
+    algs->optAlg(filename);
+  
+}
+
+int main()
+{
+    Algorithms* algs = new Algorithms(); 
+
+    delete algs; 
 }

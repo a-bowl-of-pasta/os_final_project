@@ -53,6 +53,12 @@ class Algorithms {
 
 	}
 
+	private: void pageToReplace()
+	{
+
+	}
+
+	// ================ algorithms ============	
 	public: void fifo(std::string filename) {
 
 		LinkedList* list = readFile(filename);
@@ -62,14 +68,37 @@ class Algorithms {
 		delete list; 
 	}
 
-	public: void opt(std::string filename)
+	public: void optAlg(std::string filename)
 	{
 		LinkedList* optList = readFile(filename);
 
+		int fs[optList->getFrameSize()]  = {0}; // fs = frame slots
+		int hitCount =0; 
+		int missCount =0; // other word for a page fault
+
+		/*
+		std::string outputFileName = "opt_output.txt";
+		std::ofstream output(outputFileName);
+		output.open(outputFileName); 
+		*/
+
+		int outputArray[optList->getFrameSize()][optList->getSize()] = {0}; 
+		int columnTracker = 0;
+		
+		while(columnTracker <= optList->getSize())
+		{
+			int dtbi = optList->getData(); // dtbi = data to be inserted
+			for(int i =0; i < optList->getFrameSize(); i++)
+			{
+				
+			}
+
+		}
+		
 		delete optList; 
 	}
 
-	
+	Algorithms(){}
 };
 
 #endif

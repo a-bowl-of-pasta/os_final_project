@@ -21,6 +21,7 @@ class LinkedList
 		int fsize;  
 		llnode* head; 
 		llnode* tail;
+		llnode* travelPtr; 
 	
 		public:
 	
@@ -30,6 +31,7 @@ class LinkedList
 			fsize = frameSize; 
 			head = nullptr;
 			tail = nullptr; 
+			travelPtr = nullptr; 
 		}
 
 		// ---- insert at end
@@ -41,6 +43,7 @@ class LinkedList
 			{
 				head = newNode; 
 				tail = newNode; 
+				travelPtr = head; 
 				nodeCount++; 
 			}
 			else
@@ -52,6 +55,7 @@ class LinkedList
 
 				tail -> next = head; 
 				head -> previous = tail; 
+				nodeCount++; 
 			}
 		}
 		// ------- remove last node
@@ -87,9 +91,28 @@ class LinkedList
 			}
 			nodeCount --; 
 		}
+		void resetTravelPtr()
+		{
+			travelPtr = head; 
+		}
+		void jumpToLast_travelPtr()
+		{
+			travelPtr = tail; 
+		}
+		void moveRight_TravelPtr()
+		{
+			travelPtr = travelPtr -> next; 
+		}
+		void moveLeft_TravelPtr()
+		{
+			travelPtr = travelPtr -> previous; 
+		}
 		// -------- gets the frameSize
 		int getFrameSize(){return fsize;}
-		int getSize(){return nodeCount; }
+		int getSize(){return nodeCount;}
+		int getFirstNum() {return head->data;}
+		int getLastNum(){return tail->data;}
+		int getTravelPtrData(){return travelPtr->data;}
 		
 		~LinkedList()
 		{
@@ -113,6 +136,7 @@ class LinkedList
 				delete tail; 
 				tail = nullptr; 
 				head = nullptr; 
+				travelPtr = nullptr; 
 			}
 		}
 			
