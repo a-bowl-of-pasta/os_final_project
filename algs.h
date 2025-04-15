@@ -62,11 +62,100 @@ class Algorithms {
 	public: void fifo(std::string filename) {
 
 		LinkedList* list = readFile(filename);
+		int frameSize = list->getFrameSize();
+		int totalSize = list->getSize();
+
+		int** nonDups = new int*[frameSize];
+
+		int current = list->resetTravelPtr();
 		
-		int* nonDups = new int[20];
+
+		//Initialize 2d array
+		for (int i = 0; i < frameSize; i++) {
+			nonDups[i] = new int[totalSize];
+			for (int j = 0; j < totalSize; j++)
+			{
+				nonDups[i][j] = -1; //empty array
+			}
+		}
+
+		int count = 0;
+		int hit = 0;
+
+		for (int i = 0; i < totalSize; i++)
+		{
+			current = list->getTravelPtrData();
+
+			//Copys previous data over
+			for (int previous = 0; previous < i; previous++) {
+				for (int row = 0; row < frameSize; row++) {
+					if (previous != 0 && row != 0 && i != 0) {
+					
+						nonDups[row][i] = nonDups[row][previous];
+					}
+					 
+				}
+			}
+
+			//Checks value to see if it needs to be replaced/inserted
+			for (int j = 0; j < frameSize; j++) {
+				if (current == nonDups[j][i]) {
+					continue;
+				}
+				elseif(current != nonDups[j][i] && nonDups[j][i] == -1) {
+					nonDups[j][i] = current;
+					hit++;
+					break;
+				}
+				elseif(current != nonDups[j][i] && nonDups[j][i] != -1)
+				{
+					fifoReplace(i, nonDups, list);
+					nonDups[j][i] = current;
+					hit++;
+					break;
+	
+				}
+	
+			}
+
+			current = list->moveRight_TravelPtr();
+			
+		}
+	
 
 		delete list; 
 	}
+
+	private: void fifoReplace(int i, int** nonDups, LinkedList list) {
+
+		int firstMostNum = 0;
+		int frameSize = list->getFrameSize();
+
+		//Finds oldest value within the column
+		for (int previous = 0; previous < i;, ++previous) {
+			for (int row = 0; row < frameSize; ++row) {
+				while (nonDups[row][previous != -1]) {
+
+					firstMostNum = nonDups[row][previous];
+				}
+
+			}
+		}
+
+		//Removes oldest value in column
+		for (int row = 0; row < frameSize; row++) {
+			if (nonDup[row][i] == firstMostNum) {
+				nonDups[row][i] = -1;
+				break;
+			}
+		}
+
+
+
+	}
+
+
+
 
 	public: void optAlg(std::string filename)
 	{

@@ -9,6 +9,7 @@ void useOPT(std::string filename, Algorithms* algs)
 int main()
 {
     Algorithms* algs = new Algorithms(); 
+    algs->fifo("FIFO.txt");
 
     delete algs; 
 }
