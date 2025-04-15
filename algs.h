@@ -171,9 +171,19 @@ class Algorithms {
 			list->moveRight_TravelPtr();
 			current = list->getTravelPtrData(); 
 		}
-	
 
-		delete list; 
+		
+	
+	//Prints array
+	std::cout << "Fifo Page Replacement Algorithm: \n";
+	for (int i = 0; i < totalSize; i++) {
+		for (int j = 0; j < frameSize; j++) {
+			std::cout << nonDups[j][i] << " ";
+		}
+	}
+
+	std::cout << endl;
+	delete list; 
 	}
 
 	private: void fifoReplace(int i, int** nonDups, LinkedList* list) {
