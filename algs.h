@@ -117,7 +117,7 @@ class Algorithms {
 
 		int** nonDups = new int*[frameSize];
 
-		int current = list->resetTravelPtr();
+		int current = list->getTravelPtrData();
 		
 
 		//Initialize 2d array
@@ -152,12 +152,12 @@ class Algorithms {
 				if (current == nonDups[j][i]) {
 					continue;
 				}
-				elseif(current != nonDups[j][i] && nonDups[j][i] == -1) {
+				else if(current != nonDups[j][i] && nonDups[j][i] == -1) {
 					nonDups[j][i] = current;
 					hit++;
 					break;
 				}
-				elseif(current != nonDups[j][i] && nonDups[j][i] != -1)
+				else if(current != nonDups[j][i] && nonDups[j][i] != -1)
 				{
 					fifoReplace(i, nonDups, list);
 					nonDups[j][i] = current;
@@ -168,21 +168,21 @@ class Algorithms {
 	
 			}
 
-			current = list->moveRight_TravelPtr();
-			
+			list->moveRight_TravelPtr();
+			current = list->getTravelPtrData(); 
 		}
 	
 
 		delete list; 
 	}
 
-	private: void fifoReplace(int i, int** nonDups, LinkedList list) {
+	private: void fifoReplace(int i, int** nonDups, LinkedList* list) {
 
 		int firstMostNum = 0;
 		int frameSize = list->getFrameSize();
 
 		//Finds oldest value within the column
-		for (int previous = 0; previous < i;, ++previous) {
+		for (int previous = 0; previous < i; ++previous) {
 			for (int row = 0; row < frameSize; ++row) {
 				while (nonDups[row][previous != -1]) {
 
@@ -194,7 +194,7 @@ class Algorithms {
 
 		//Removes oldest value in column
 		for (int row = 0; row < frameSize; row++) {
-			if (nonDup[row][i] == firstMostNum) {
+			if (nonDups[row][i] == firstMostNum) {
 				nonDups[row][i] = -1;
 				break;
 			}
