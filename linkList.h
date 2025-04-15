@@ -113,6 +113,28 @@ class LinkedList
 		int getFirstNum() {return head->data;}
 		int getLastNum(){return tail->data;}
 		int getTravelPtrData(){return travelPtr->data;}
+		bool travIsHead()
+		{
+			if(travelPtr == head)
+			{
+				return true;
+			}
+			else
+			{
+				return false; 
+			}
+		}
+		bool travIsTail()
+		{
+			if(travelPtr == tail)
+			{
+				return true; 
+			}
+			else
+			{
+				return false; 
+			}
+		}
 		
 		~LinkedList()
 		{

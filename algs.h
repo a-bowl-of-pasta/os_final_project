@@ -53,9 +53,59 @@ class Algorithms {
 
 	}
 
-	private: void pageToReplace()
+	private: int pageToReplace(LinkedList* refLst, int* frame, int frameSize)
 	{
+		int replacmentIndex = -100; 
+		int compIndex = 0; //tnmc = travel node move count
+		bool done = false; 
+		// ---------- checks for empty slot
+		for(int i =0; i < frameSize; i++)
+		{
+			if(frame[i] == -1)
+			{
+				replacmentIndex = i; 
+				done = true; 
+				i = frameSize -1; 
+			}
 
+
+		}
+		// ------- checks for a replacment number
+		if(done == false)
+		{
+			for(int i =0; i < frameSize; i++)
+			{
+				int moveCount =0; 
+				bool frameCheckComplete = false; 
+
+				// checks frame i against remaining list
+				while(frameCheckComplete != true)
+				{
+				// repeate found; has not circled back to head; compIndex is less than moveCount
+					if(frame[i] == refLst->getTravelPtrData() && refLst->travIsHead() != true && moveCount >= compIndex)
+					{
+						compIndex = moveCount; 
+						replacmentIndex = i; 
+						frameCheckComplete =true; 
+					}
+					else if (refLst->travIsHead() == true) // if not repeat -> compIndex = -1 and replaceIndex = i
+					{
+						compIndex = -1; 
+						replacmentIndex = i; 
+						frameCheckComplete = true;
+					}
+
+					refLst->moveRight_TravelPtr(); 
+					moveCount++; 
+				}
+				for(int j =0; j< moveCount;j++ )
+				{
+					refLst->moveLeft_TravelPtr();
+				}
+			
+			}
+		}
+	 return replacmentIndex;
 	}
 
 	// ================ algorithms ============	
@@ -72,27 +122,55 @@ class Algorithms {
 	{
 		LinkedList* optList = readFile(filename);
 
-		int fs[optList->getFrameSize()]  = {0}; // fs = frame slots
 		int hitCount =0; 
 		int missCount =0; // other word for a page fault
 
-		/*
-		std::string outputFileName = "opt_output.txt";
-		std::ofstream output(outputFileName);
-		output.open(outputFileName); 
-		*/
-
 		int outputArray[optList->getFrameSize()][optList->getSize()] = {0}; 
-		int columnTracker = 0;
 		
-		while(columnTracker <= optList->getSize())
+		// ---- sets default values of matrix to -1
+		for(int i =0; i < optList->getFrameSize(); i++)
 		{
-			int dtbi = optList->getData(); // dtbi = data to be inserted
-			for(int i =0; i < optList->getFrameSize(); i++)
+			for(int j =0; j < optList->getSize(); j++) {outputArray[i][j] = -1; }
+		}
+
+		int columnTracker = 0;
+	
+		// ------- loops until the max column is hit
+		while(columnTracker < optList->getSize())
+		{
+			bool hit = false; 
+			int dtbi = optList->getTravelPtrData(); // dtbi = data to be inserted
+
+			// ------- if we are currently passed column 1, copy previous column to current column
+			if(columnTracker > 0)
+			{
+				for(int j = 0; j < optList->getFrameSize(); j++)
+				{
+					outputArray[j][columnTracker] = outputArray[j][columnTracker-1];
+				}
+			}
+		
+			// ------ loop through the rows (frame)
+			for(int i =0; i < optList->getFrameSize(); i++) // check if num to be inserted is already in frame
 			{
 				
+				if(dtbi == outputArray[i][columnTracker]) // if there is a hit, increase hitcount, and kill loop
+				{
+					hit = true; 
+					hitCount++; 
+					i = optList->getFrameSize()-1; 
+				}
+				else if(i == optList->getFrameSize()-1 && hit == false) // fault, page fault +1, hit stays false
+				{
+					missCount++; 
+					// replace a node 
+					// end loop 
+				}	
 			}
 
+			// ---- move to next column and linked list node
+			optList->moveRight_TravelPtr();
+			columnTracker++; 
 		}
 		
 		delete optList; 
