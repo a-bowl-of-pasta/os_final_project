@@ -1,6 +1,7 @@
 #ifndef LINKED_LIST_H
 #define LINKED_LIST_H
 
+#include<iostream>
 class LinkedList
 {
 		private:
@@ -27,7 +28,7 @@ class LinkedList
 	
 		LinkedList(int frameSize)
 		{
-			int nodeCount = 0; 
+			this->nodeCount = 0; 
 			fsize = frameSize; 
 			head = nullptr;
 			tail = nullptr; 
@@ -41,6 +42,9 @@ class LinkedList
 
 			if (nodeCount == 0) 
 			{
+				newNode->next = newNode; 
+				newNode->previous = newNode; 
+
 				head = newNode; 
 				tail = newNode; 
 				travelPtr = head; 
@@ -61,13 +65,27 @@ class LinkedList
 		// ------- remove last node
 		void removeEnd() 
 		{
-			tail = tail->previous; 
-			delete tail->next; 
 		
-			tail -> next = head; 
-			head -> previous = tail; 
-
-			nodeCount--;   
+			
+				if (nodeCount == 1)
+				{
+					delete tail;
+					head = nullptr; 
+					tail =  nullptr;
+					nodeCount = 0;
+				}
+				else
+				{
+					llnode* temp = tail;
+					tail = tail->previous;
+					delete temp;
+			
+					tail->next = head;
+					head->previous = tail;
+					nodeCount--;
+				}
+			
+			  
 		}
 		// --------- remove first node
 		void removeFirst()
@@ -91,6 +109,7 @@ class LinkedList
 			}
 			nodeCount --; 
 		}
+		
 		void resetTravelPtr()
 		{
 			travelPtr = head; 
@@ -135,9 +154,11 @@ class LinkedList
 				return false; 
 			}
 		}
+	
 		
 		~LinkedList()
 		{
+			std::cout << std::endl << std::endl<<"destructor running"<<std::endl; 
 			
 			if(nodeCount == 1)
 			{
@@ -148,18 +169,24 @@ class LinkedList
 			}
 			else 
 			{
-				llnode* traveler = head; 
+				llnode* traveler = head;
+				tail ->next = nullptr;  
 				while (traveler != tail)
 				{
+					
 					llnode* temp = traveler; 
 					traveler = traveler -> next; 
-					delete temp;  
+					delete temp; 
+					nodeCount--;  
+					
 				} 
 				delete tail; 
 				tail = nullptr; 
 				head = nullptr; 
 				travelPtr = nullptr; 
+				nodeCount--; 
 			}
+			std::cout << "linked list deleted, node count = " << nodeCount<<std::endl; 
 		}
 			
 };

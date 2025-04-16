@@ -2,8 +2,6 @@
 #define ALGS_H
 
 #include "linkList.h"
-#include <iostream>
-#include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
@@ -11,13 +9,26 @@
 
 class Algorithms {
 
+// ================================== HELPER METHODS ===================
+	private: bool isNumber(std::string number)
+	{
+		for(int i =0; i < number.length(); i++)
+		{
+			if(!isdigit(number.at(i)))
+			{
+				return false;  
+			}
+		}
+		return true; 
+	}
+	
 	private: LinkedList* readFile(std::string fileName) {
 		
 		std::ifstream file(fileName);
-		file.open(fileName);
 
 		if (!file.is_open()) {
 			std::cout << "Error, file does not open! Check for errors.";
+			return 0; 
 		}
 
 		int i = 0;
@@ -27,24 +38,18 @@ class Algorithms {
 		std::string line; 
 		std::getline(file, line);
 		std::stringstream ss(line); 
-
+		
+		// inserts node and creates list
 		while (getline(ss, number, ',')) {
-			
-			try 
-			{
-				if(i == 0)// frame size
-				{
-					int frameSize = stoi(number);
-					numbers = new LinkedList(frameSize);
-					i++; 
-				}
-				else // stores the pages 
-				{
-					numbers->insert(stoi(number));
-				}
-
-			}catch(...)
-			{}	
+		
+			if (!isNumber(number)) continue;
+		
+			if (i == 0) {
+				numbers = new LinkedList(stoi(number));
+			} else {
+				numbers->insert(stoi(number));
+			}
+			i++;
 		}
 		
 		
@@ -53,65 +58,38 @@ class Algorithms {
 
 	}
 
-	private: int pageToReplace(LinkedList* refLst, int* frame, int frameSize)
-	{
-		int replacmentIndex = -100; 
-		int compIndex = 0; //tnmc = travel node move count
-		bool done = false; 
-		// ---------- checks for empty slot
-		for(int i =0; i < frameSize; i++)
-		{
-			if(frame[i] == -1)
-			{
-				replacmentIndex = i; 
-				done = true; 
-				i = frameSize -1; 
-			}
+//  ================================== FIFO ALGORITHM ===================
+	private: void fifoReplace(int i, int** nonDups, LinkedList* list) {
 
+		int firstMostNum = 0;
+		int frameSize = list->getFrameSize();
 
-		}
-		// ------- checks for a replacment number
-		if(done == false)
-		{
-			for(int i =0; i < frameSize; i++)
-			{
-				int moveCount =0; 
-				bool frameCheckComplete = false; 
+		//Finds oldest value within the column
+		for (int previous = 0; previous < i; ++previous) {
+			for (int row = 0; row < frameSize; ++row) {
+				while (nonDups[row][previous != -1]) {
 
-				// checks frame i against remaining list
-				while(frameCheckComplete != true)
-				{
-				// repeate found; has not circled back to head; compIndex is less than moveCount
-					if(frame[i] == refLst->getTravelPtrData() && refLst->travIsHead() != true && moveCount >= compIndex)
-					{
-						compIndex = moveCount; 
-						replacmentIndex = i; 
-						frameCheckComplete =true; 
-					}
-					else if (refLst->travIsHead() == true) // if not repeat -> compIndex = -1 and replaceIndex = i
-					{
-						compIndex = -1; 
-						replacmentIndex = i; 
-						frameCheckComplete = true;
-					}
-
-					refLst->moveRight_TravelPtr(); 
-					moveCount++; 
+					firstMostNum = nonDups[row][previous];
 				}
-				for(int j =0; j< moveCount;j++ )
-				{
-					refLst->moveLeft_TravelPtr();
-				}
-			
+
 			}
 		}
-	 return replacmentIndex;
+
+		//Removes oldest value in column
+		for (int row = 0; row < frameSize; row++) {
+			if (nonDups[row][i] == firstMostNum) {
+				nonDups[row][i] = -1;
+				break;
+			}
+		}
+
+
+
 	}
-
-	// ================ algorithms ============	
 	public: void fifo(std::string filename) {
 
 		LinkedList* list = readFile(filename);
+
 		int frameSize = list->getFrameSize();
 		int totalSize = list->getSize();
 
@@ -140,10 +118,12 @@ class Algorithms {
 			for (int previous = 0; previous < i; previous++) {
 				for (int row = 0; row < frameSize; row++) {
 					if (previous != 0 && row != 0 && i != 0) {
-					
-						nonDups[row][i] = nonDups[row][previous];
+						if(i > 0)
+						{
+							nonDups[row][i] = nonDups[row][i-1];
+						}
 					}
-					 
+
 				}
 			}
 
@@ -171,53 +151,81 @@ class Algorithms {
 			list->moveRight_TravelPtr();
 			current = list->getTravelPtrData(); 
 		}
-
-		
 	
-	//Prints array
-	std::cout << "Fifo Page Replacement Algorithm: \n";
-	for (int i = 0; i < totalSize; i++) {
-		for (int j = 0; j < frameSize; j++) {
-			std::cout << nonDups[j][i] << " ";
+		//Prints array
+		std::cout << "Fifo Page Replacement Algorithm: \n";
+		for (int i = 0; i < totalSize; i++) {
+			for (int j = 0; j < frameSize; j++) {
+				std::cout << nonDups[j][i] << " ";
+			}
 		}
+
+		std::cout << std::endl;
+		delete list; 
 	}
+	
+// ====================================== OPT ALGORITHM =================
+	private: int pageToReplace(LinkedList* refLst, int* frame, int frameSize)
+	{
 
-	std::cout << endl;
-	delete list; 
-	}
+		int replacmentIndex = 0; 
+		int compIndex = -100; //tnmc = travel node move count
+		bool done = false; 
+		// ---------- checks for empty slot
+		for(int i =0; i < frameSize; i++)
+		{
+			if(frame[i] == -1)
+			{
+				replacmentIndex = i; 
+				done = true; 
+				i = frameSize -1; 
+			}
 
-	private: void fifoReplace(int i, int** nonDups, LinkedList* list) {
 
-		int firstMostNum = 0;
-		int frameSize = list->getFrameSize();
+		}
+		// ------- checks for a replacment number
+		if(done == false)
+		{
+			for(int i =0; i < frameSize; i++)
+			{
+				int moveCount =0; 
+				bool frameCheckComplete = false; 
 
-		//Finds oldest value within the column
-		for (int previous = 0; previous < i; ++previous) {
-			for (int row = 0; row < frameSize; ++row) {
-				while (nonDups[row][previous != -1]) {
+				// checks frame i against remaining list
+				while(frameCheckComplete != true)
+				{
 
-					firstMostNum = nonDups[row][previous];
+					if(refLst->travIsTail() == true)// if not repeat -> compIndex = -1 and replaceIndex = i
+					{
+						compIndex = -1; 
+						replacmentIndex = i;
+						frameCheckComplete =true; 
+					
+					}
+					else
+					{
+						// repeate found; has not circled back to head; compIndex is less than moveCount
+						if(frame[i] == refLst->getTravelPtrData() && moveCount >= compIndex)
+						{
+							compIndex = moveCount; 
+							replacmentIndex = i; 
+							frameCheckComplete =true; 
+						}
+					}
+					refLst->moveRight_TravelPtr(); 
+					moveCount++; 
 				}
-
+				for(int j =0; j< moveCount;j++ )
+				{
+					refLst->moveLeft_TravelPtr();
+				}
+			
 			}
 		}
-
-		//Removes oldest value in column
-		for (int row = 0; row < frameSize; row++) {
-			if (nonDups[row][i] == firstMostNum) {
-				nonDups[row][i] = -1;
-				break;
-			}
-		}
-
-
-
+	 return replacmentIndex;
 	}
-
-
-
-
-	public: void optAlg(std::string filename)
+	
+	public:void optAlg(std::string filename)
 	{
 		LinkedList* optList = readFile(filename);
 
@@ -261,9 +269,16 @@ class Algorithms {
 				}
 				else if(i == optList->getFrameSize()-1 && hit == false) // fault, page fault +1, hit stays false
 				{
+					int frame[optList->getFrameSize()];
+					
+					for(int i =0; i < optList->getFrameSize() ; i++)
+					{
+						frame[i] = outputArray[i][columnTracker];
+					}
+					
 					missCount++; 
-					// replace a node 
-					// end loop 
+					outputArray[pageToReplace(optList, frame, optList->getFrameSize())][columnTracker] = dtbi; 
+					i = optList->getFrameSize()-1; 
 				}	
 			}
 
@@ -272,9 +287,37 @@ class Algorithms {
 			columnTracker++; 
 		}
 		
+		// ========= print everything
+
+		std::cout <<std::endl<< "opt algorithm" <<std::endl<< std::endl; 
+		std::cout << "hit count = " << hitCount <<std::endl; 
+		std::cout << "page faults = " << missCount << std::endl<<std::endl; 
+
+		optList->resetTravelPtr();
+		for(int i =0; i < optList->getSize(); i++)
+		{
+			std::cout << optList->getTravelPtrData() << "\t"; 
+			optList->moveRight_TravelPtr(); 
+		}
+		std::cout << std::endl; 
+		for(int i =0; i < 120; i++)
+		{
+			std::cout <<"-"; 
+		}
+		std::cout<<std::endl<<std::endl; 
+		for(int i =0; i < optList->getFrameSize(); i++)
+		{
+			for(int j = 0; j < optList->getSize(); j++)
+			{
+				std::cout << outputArray[i][j] << "\t"; 
+			}
+			std::cout << std::endl;
+		}
+
 		delete optList; 
 	}
 
+// ======================== CONSTRUCTOR ====================
 	Algorithms(){}
 };
 
